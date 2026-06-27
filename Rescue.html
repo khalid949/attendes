@@ -21,12 +21,12 @@
 </table>
 <script>
     const trainees = [
-        {id: "10077", rank: "مساعد ضابط", name: "أحمد سعيد المطروشي"}, {id: "10207", rank: "رقيب أول", name: "عبدالله سعيد الزعابي"},
-        {id: "10315", rank: "شرطي أول", name: "طارق جمعة الزعابي"}, {id: "10319", rank: "شرطي أول", name: "عبدالله مسعود النقبي"},
-        {id: "10325", rank: "شرطي أول", name: "يوسف سعيد الزعابي"}, {id: "10353", rank: "شرطي أول", name: "ماجد أحمد الظهوري"},
-        {id: "10374", rank: "شرطي أول", name: "علي محمد البلوشي"}, {id: "10387", rank: "شرطي أول", name: "عادل هلال الظهوري"},
-        {id: "10386", rank: "شرطي أول", name: "سيف مروان البلوشي"}, {id: "10389", rank: "شرطي أول", name: "عبدالعزيز حاجي الحمادي"},
-        {id: "10390", rank: "شرطي أول", name: "أحمد راشد القايدي"}, {id: "-", rank: "-", name: "جابر أحمد راشد الكعبي"}
+        {id: "10393", rank: "شرطي أول", name: "راشد عبدالرحمن عبدالله الظهوري"}, {id: "10540", rank: "شرطي أول", name: "عبدالعزيز عبدالرحمن الرئيسي"},
+        {id: "10551", rank: "شرطي أول", name: "حسن علي الكندي"}, {id: "10579", rank: "شرطي أول", name: "عبدالرحمن موسى علي"},
+        {id: "10583", rank: "شرطي أول", name: "خليفه حميد عبيد السوقي"}, {id: "10596", rank: "شرطي أول", name: "بلال بسام بلال مبارك"},
+        {id: "816", rank: "مدني", name: "محمد صالح الجسمي"}, {id: "824", rank: "مدني", name: "ياسر خالد الجسمي"},
+        {id: "849", rank: "مدني", name: "عيسى علي غلوم"}, {id: "851", rank: "مدني", name: "سلطان خالد الحمادي"},
+        {id: "857", rank: "مدني", name: "محمد سالم الحمادي"}
     ];
     const list = document.getElementById('list');
     trainees.forEach((t, i) => {
@@ -35,10 +35,11 @@
     });
     const pads = trainees.map((_, i) => new SignaturePad(document.getElementById(`sig-${i}`)));
     function save(i, name) {
-        const url = "YOUR_GOOGLE_SCRIPT_URL_HERE";
+        const url = "
+https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFdjByZ5-BVGHPtYj5Sgu-bvYI38fUzw/exec";
         fetch(url, { method: "POST", body: JSON.stringify({name: name, sig: pads[i].toDataURL()}) })
         .then(() => alert("تم حفظ توقيع " + name));
     }
-    function exportPDF() { html2pdf().from(document.getElementById('traineeTable')).save('تقرير_المواد_الخطرة.pdf'); }
+    function exportPDF() { html2pdf().from(document.getElementById('traineeTable')).save('تقرير_البحث_والانقاذ.pdf'); }
 </script>
 </body></html>
