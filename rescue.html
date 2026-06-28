@@ -1,45 +1,63 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
-<head><meta charset="UTF-8">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
-<style>
-    :root { --primary-red: #d32f2f; --accent-yellow: #b8860b; }
-    body{font-family:'Segoe UI', sans-serif; background:#f4f4f4; padding:20px;}
-    .header{background:white; padding:20px; text-align:center; border-bottom:5px solid var(--accent-yellow); border-top:5px solid var(--primary-red); border-radius:12px;}
-    table{width:100%; border-collapse:collapse; background:white; margin-top:20px;}
-    th{background:var(--accent-yellow); color:white; padding:15px;}
-    td{padding:12px; border-bottom:1px solid #ddd; text-align:center;}
-    canvas{border:1px solid #b8860b; width:120px; height:40px; background:#fff; cursor:crosshair; margin:0 auto;}
-</style></head>
+<head>
+    <meta charset="UTF-8">
+    <title>دورة البحث والإنقاذ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <style>
+        :root { --primary-red: #d32f2f; --accent-yellow: #b8860b; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f4f4; padding: 20px; }
+        .header { background: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--accent-yellow); border-top: 5px solid var(--primary-red); border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
+        th { background: var(--accent-yellow); color: white; padding: 15px; }
+        td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
+        canvas { border: 2px solid var(--accent-yellow); width: 150px; height: 60px; background: #fff; cursor: crosshair; margin: 0 auto; display: block; }
+    </style>
+</head>
 <body>
-<div class="header"><h1>هيئة الشارقة للدفاع المدني</h1><h3>دورة: أساسيات التعامل مع المواد الخطرة</h3></div>
+<div class="header"><h1>هيئة الشارقة للدفاع المدني</h1><h3>دورة: البحث والإنقاذ في الأماكن المغلقة</h3></div>
 <button onclick="exportPDF()" style="margin:20px; padding:10px; background:var(--accent-yellow); color:white; border:none; border-radius:5px; cursor:pointer;">تصدير التقرير كـ PDF</button>
+
 <table id="traineeTable">
     <thead><tr><th>الرقم العسكري</th><th>الرتبة</th><th>الاسم</th><th>التوقيع</th><th>حفظ</th></tr></thead>
     <tbody id="list"></tbody>
 </table>
+
 <script>
     const trainees = [
-        {id: "10393", rank: "شرطي أول", name: "راشد عبدالرحمن عبدالله الظهوري"}, {id: "10540", rank: "شرطي أول", name: "عبدالعزيز عبدالرحمن الرئيسي"},
-        {id: "10551", rank: "شرطي أول", name: "حسن علي الكندي"}, {id: "10579", rank: "شرطي أول", name: "عبدالرحمن موسى علي"},
-        {id: "10583", rank: "شرطي أول", name: "خليفه حميد عبيد السوقي"}, {id: "10596", rank: "شرطي أول", name: "بلال بسام بلال مبارك"},
-        {id: "816", rank: "مدني", name: "محمد صالح الجسمي"}, {id: "824", rank: "مدني", name: "ياسر خالد الجسمي"},
-        {id: "849", rank: "مدني", name: "عيسى علي غلوم"}, {id: "851", rank: "مدني", name: "سلطان خالد الحمادي"},
+        {id: "10393", rank: "شرطي أول", name: "راشد عبدالرحمن عبدالله الظهوري"},
+        {id: "10540", rank: "شرطي أول", name: "عبدالعزيز عبدالرحمن الرئيسي"},
+        {id: "10551", rank: "شرطي أول", name: "حسن علي الكندي"},
+        {id: "10579", rank: "شرطي أول", name: "عبدالرحمن موسى علي"},
+        {id: "10583", rank: "شرطي أول", name: "خليفه حميد عبيد السوقي"},
+        {id: "10596", rank: "شرطي أول", name: "بلال بسام بلال مبارك"},
+        {id: "816", rank: "مدني", name: "محمد صالح الجسمي"},
+        {id: "824", rank: "مدني", name: "ياسر خالد الجسمي"},
+        {id: "849", rank: "مدني", name: "عيسى علي غلوم"},
+        {id: "851", rank: "مدني", name: "سلطان خالد الحمادي"},
         {id: "857", rank: "مدني", name: "محمد سالم الحمادي"}
     ];
+
     const list = document.getElementById('list');
-    trainees.forEach((t, i) => {
-        list.innerHTML += `<tr><td>${t.id}</td><td>${t.rank}</td><td>${t.name}</td>
-        <td><canvas id="sig-${i}"></canvas></td><td><button onclick="save(${i}, '${t.name}')">حفظ</button></td></tr>`;
-    });
-    const pads = trainees.map((_, i) => new SignaturePad(document.getElementById(`sig-${i}`)));
+    let pads = [];
+
+    window.onload = function() {
+        trainees.forEach((t, i) => {
+            list.innerHTML += `<tr><td>${t.id}</td><td>${t.rank}</td><td>${t.name}</td>
+            <td><canvas id="sig-${i}"></canvas></td><td><button onclick="save(${i}, '${t.name}')">حفظ</button></td></tr>`;
+        });
+        
+        pads = trainees.map((_, i) => new SignaturePad(document.getElementById(`sig-${i}`)));
+    };
+
     function save(i, name) {
-        const url = "
-https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFdjByZ5-BVGHPtYj5Sgu-bvYI38fUzw/exec";
+        const url = "https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFdjByZ5-BVGHPtYj5Sgu-bvYI38fUzw/exec";
         fetch(url, { method: "POST", body: JSON.stringify({name: name, sig: pads[i].toDataURL()}) })
         .then(() => alert("تم حفظ توقيع " + name));
     }
-    function exportPDF() { html2pdf().from(document.getElementById('traineeTable')).save('تقرير_البحث_والانقاذ.pdf'); }
+
+    function exportPDF() { html2pdf().from(document.getElementById('traineeTable')).save('تقرير_البحث_والإنقاذ.pdf'); }
 </script>
-</body></html>
+</body>
+</html>
