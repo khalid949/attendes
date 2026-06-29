@@ -2,6 +2,7 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
+    <title>دورة المواد الخطرة</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <style>
@@ -11,17 +12,13 @@
         table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
         th { background: var(--accent-yellow); color: white; padding: 10px; }
         td { padding: 8px; border: 1px solid #ddd; text-align: center; }
-        canvas { border: 2px solid var(--accent-yellow); width: 100%; max-width: 120px; height: 50px; background: #fff; cursor: crosshair; display: block; margin: 5px auto; }
-        input { width: 90px; padding: 5px; margin-bottom: 5px; border: 1px solid #ccc; }
+        canvas { border: 2px solid var(--accent-yellow); width: 120px; height: 50px; background: #fff; cursor: crosshair; display: block; margin: 5px auto; }
+        input { width: 80px; padding: 5px; margin-bottom: 5px; }
         button { padding: 8px; background: var(--primary-red); color: white; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
-<div class="header">
-    <h1>هيئة الشارقة للدفاع المدني</h1>
-    <h3>دورة: المواد الخطرة | التاريخ: <span id="date"></span></h3>
-</div>
-<button onclick="exportPDF()">تصدير التقرير PDF</button>
+<div class="header"><h1>هيئة الشارقة للدفاع المدني</h1><h3>المواد الخطرة | التاريخ: <span id="date"></span></h3></div>
 
 <table id="traineeTable">
     <thead><tr><th>الرقم</th><th>الاسم</th><th>الحضور</th><th>الانصراف</th><th>حفظ</th></tr></thead>
@@ -30,29 +27,35 @@
 
 <script>
     document.getElementById('date').innerText = new Date().toLocaleDateString('ar-EG');
+    
+    // قائمة الأسماء
     const trainees = [
         {id: "10077", name: "أحمد سعيد المطروشي"}, {id: "10207", name: "عبدالله سعيد الزعابي"},
         {id: "10315", name: "طارق جمعة الزعابي"}, {id: "10319", name: "عبدالله مسعود النقبي"},
         {id: "10325", name: "يوسف سعيد الزعابي"}, {id: "10353", name: "ماجد أحمد الظهوري"},
         {id: "10374", name: "علي محمد البلوشي"}, {id: "10387", name: "عادل هلال الظهوري"},
         {id: "10386", name: "سيف مروان البلوشي"}, {id: "10389", name: "عبدالعزيز حاجي الحمادي"},
-        {id: "10390", name: "أحمد راشد القايدي"}, {id: "-", name: "جابر أحمد راشد الكعبي"}
+        {id: "10390", name: "أحمد راشد القايدي"}
     ];
 
     const list = document.getElementById('list');
+    
+    // بناء الجدول فوراً
     trainees.forEach((t, i) => {
-        list.innerHTML += `<tr><td>${t.id}</td><td>${t.name}</td>
+        const row = document.createElement('tr');
+        row.innerHTML = `<td>${t.id}</td><td>${t.name}</td>
         <td><input type="time" id="in-time-${i}"><canvas id="in-${i}"></canvas></td>
         <td><input type="time" id="out-time-${i}"><canvas id="out-${i}"></canvas></td>
-        <td><button onclick="save(${i})">حفظ</button></td></tr>`;
+        <td><button onclick="save(${i})">حفظ</button></td>`;
+        list.appendChild(row);
     });
 
+    // تهيئة التواقيع بعد إضافة العناصر للجدول
     const padsIn = trainees.map((_, i) => new SignaturePad(document.getElementById(`in-${i}`)));
     const padsOut = trainees.map((_, i) => new SignaturePad(document.getElementById(`out-${i}`)));
 
     function save(i) {
-        const url = "
-https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFdjByZ5-BVGHPtYj5Sgu-bvYI38fUzw/exec";
+        const url = "https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFdjByZ5-BVGHPtYj5Sgu-bvYI38fUzw/exec";
         fetch(url, { method: "POST", body: JSON.stringify({
             name: trainees[i].name,
             timeIn: document.getElementById(`in-time-${i}`).value,
@@ -61,8 +64,6 @@ https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFd
             sigOut: padsOut[i].toDataURL()
         })}).then(() => alert("تم حفظ بيانات " + trainees[i].name));
     }
-
-    function exportPDF() { html2pdf().from(document.getElementById('traineeTable')).save('تقرير_الحضور.pdf'); }
 </script>
 </body>
 </html>
