@@ -2,59 +2,67 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>دورة المواد الخطرة</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <style>
         :root { --primary-red: #d32f2f; --accent-yellow: #b8860b; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f4f4f4; padding: 20px; }
-        .header { background: white; padding: 20px; text-align: center; border-bottom: 5px solid var(--accent-yellow); border-top: 5px solid var(--primary-red); border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; background: white; margin-top: 20px; }
-        th { background: var(--accent-yellow); color: white; padding: 15px; }
-        td { padding: 12px; border-bottom: 1px solid #ddd; text-align: center; }
-        canvas { border: 2px solid var(--accent-yellow); width: 150px; height: 60px; background: #fff; cursor: crosshair; margin: 0 auto; display: block; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f4f4; padding: 15px; }
+        .header { background: white; padding: 15px; text-align: center; border-bottom: 5px solid var(--accent-yellow); border-top: 5px solid var(--primary-red); border-radius: 10px; margin-bottom: 15px; }
+        table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
+        th { background: var(--accent-yellow); color: white; padding: 10px; }
+        td { padding: 8px; border: 1px solid #ddd; text-align: center; }
+        canvas { border: 2px solid var(--accent-yellow); width: 100%; max-width: 120px; height: 50px; background: #fff; cursor: crosshair; display: block; margin: 5px auto; }
+        input { width: 90px; padding: 5px; margin-bottom: 5px; border: 1px solid #ccc; }
+        button { padding: 8px; background: var(--primary-red); color: white; border: none; border-radius: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
-<div class="header"><h1>هيئة الشارقة للدفاع المدني</h1><h3>دورة: أساسيات التعامل مع المواد الخطرة</h3></div>
-<button onclick="exportPDF()" style="margin:20px; padding:10px; background:var(--accent-yellow); color:white; border:none; border-radius:5px; cursor:pointer;">تصدير التقرير كـ PDF</button>
+<div class="header">
+    <h1>هيئة الشارقة للدفاع المدني</h1>
+    <h3>دورة: المواد الخطرة | التاريخ: <span id="date"></span></h3>
+</div>
+<button onclick="exportPDF()">تصدير التقرير PDF</button>
 
 <table id="traineeTable">
-    <thead><tr><th>الرقم العسكري</th><th>الرتبة</th><th>الاسم</th><th>التوقيع</th><th>حفظ</th></tr></thead>
+    <thead><tr><th>الرقم</th><th>الاسم</th><th>الحضور</th><th>الانصراف</th><th>حفظ</th></tr></thead>
     <tbody id="list"></tbody>
 </table>
 
 <script>
-
+    document.getElementById('date').innerText = new Date().toLocaleDateString('ar-EG');
     const trainees = [
-        {id: "10077", rank: "مساعد ضابط", name: "أحمد سعيد المطروشي"}, {id: "10207", rank: "رقيب أول", name: "عبدالله سعيد الزعابي"},
-        {id: "10315", rank: "شرطي أول", name: "طارق جمعة الزعابي"}, {id: "10319", rank: "شرطي أول", name: "عبدالله مسعود النقبي"},
-        {id: "10325", rank: "شرطي أول", name: "يوسف سعيد الزعابي"}, {id: "10353", rank: "شرطي أول", name: "ماجد أحمد الظهوري"},
-        {id: "10374", rank: "شرطي أول", name: "علي محمد البلوشي"}, {id: "10387", rank: "شرطي أول", name: "عادل هلال الظهوري"},
-        {id: "10386", rank: "شرطي أول", name: "سيف مروان البلوشي"}, {id: "10389", rank: "شرطي أول", name: "عبدالعزيز حاجي الحمادي"},
-        {id: "10390", rank: "شرطي أول", name: "أحمد راشد القايدي"}
+        {id: "10077", name: "أحمد سعيد المطروشي"}, {id: "10207", name: "عبدالله سعيد الزعابي"},
+        {id: "10315", name: "طارق جمعة الزعابي"}, {id: "10319", name: "عبدالله مسعود النقبي"},
+        {id: "10325", name: "يوسف سعيد الزعابي"}, {id: "10353", name: "ماجد أحمد الظهوري"},
+        {id: "10374", name: "علي محمد البلوشي"}, {id: "10387", name: "عادل هلال الظهوري"},
+        {id: "10386", name: "سيف مروان البلوشي"}, {id: "10389", name: "عبدالعزيز حاجي الحمادي"},
+        {id: "10390", name: "أحمد راشد القايدي"}, {id: "-", name: "جابر أحمد راشد الكعبي"}
     ];
 
     const list = document.getElementById('list');
-    let pads = [];
+    trainees.forEach((t, i) => {
+        list.innerHTML += `<tr><td>${t.id}</td><td>${t.name}</td>
+        <td><input type="time" id="in-time-${i}"><canvas id="in-${i}"></canvas></td>
+        <td><input type="time" id="out-time-${i}"><canvas id="out-${i}"></canvas></td>
+        <td><button onclick="save(${i})">حفظ</button></td></tr>`;
+    });
 
-    // تأخير تشغيل التوقيع حتى يتم رسم الجدول بالكامل
-    window.onload = function() {
-        trainees.forEach((t, i) => {
-            list.innerHTML += `<tr><td>${t.id}</td><td>${t.rank}</td><td>${t.name}</td>
-            <td><canvas id="sig-${i}"></canvas></td><td><button onclick="save(${i}, '${t.name}')">حفظ</button></td></tr>`;
-        });
-        
-        pads = trainees.map((_, i) => new SignaturePad(document.getElementById(`sig-${i}`)));
-    };
+    const padsIn = trainees.map((_, i) => new SignaturePad(document.getElementById(`in-${i}`)));
+    const padsOut = trainees.map((_, i) => new SignaturePad(document.getElementById(`out-${i}`)));
 
-    function save(i, name) {
-        const url = "https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFdjByZ5-BVGHPtYj5Sgu-bvYI38fUzw/exec";
-        fetch(url, { method: "POST", body: JSON.stringify({name: name, sig: pads[i].toDataURL()}) })
-        .then(() => alert("تم حفظ توقيع " + name));
+    function save(i) {
+        const url = "
+https://script.google.com/macros/s/AKfycby_vqS3xOYNirllXDltGRiMVmBA7mEzrassmclFdjByZ5-BVGHPtYj5Sgu-bvYI38fUzw/exec";
+        fetch(url, { method: "POST", body: JSON.stringify({
+            name: trainees[i].name,
+            timeIn: document.getElementById(`in-time-${i}`).value,
+            timeOut: document.getElementById(`out-time-${i}`).value,
+            sigIn: padsIn[i].toDataURL(),
+            sigOut: padsOut[i].toDataURL()
+        })}).then(() => alert("تم حفظ بيانات " + trainees[i].name));
     }
 
-    function exportPDF() { html2pdf().from(document.getElementById('traineeTable')).save('تقرير_المواد_الخطرة.pdf'); }
+    function exportPDF() { html2pdf().from(document.getElementById('traineeTable')).save('تقرير_الحضور.pdf'); }
 </script>
 </body>
 </html>
